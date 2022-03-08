@@ -50,15 +50,19 @@ else
         echo "The last Backup at \033[1;34m $DATE \033[0m has not been touched"
         echo "Exit..";
 fi
+BACKFOLDER="backup$RANDOM"
 echo "\033[1;33mDo you want to encrypt and gitpush \nyour backup on fscty/backup.git ? \033[0m"
 read -p "  (y/n)?" CONT
 if [ "$CONT" = "y" ]; then
-	gpg --output original_backup/termux-backup.tar.gz.gpg --cipher-algo AES256 --symmetric /storage/emulated/0/utiles/termuxbackup/termux-backup.tar.gz
+	echo "Cloning the repo fscty/backup.git"
+	git clone https://github.com/fscty/backup.git $BACKFOLDER
+	cd $BACKFOLDER
+	gpg --output original_backup/termux-backup.tar.gz.gpg --cipher-algo AES256 --symmetric $BACKUPFILE
 	cp termux-backup.tar.gz.gpg original_backup/
 	echo "Removing the Old Split files backup...\n"
 	rm splitfile/termux-backup.tar.gz.split*
 	echo "\033[1;32mTermux backup was encrypted and copy here..\033[0m"
-	split --verbose -C 10M original_backup/termux-backup.tar.gz.gpg termux-backup.tar.gz.split.
+	split --verbose -C 5M original_backup/termux-backup.tar.gz.gpg termux-backup.tar.gz.split.
 	mv termux-backup.tar.gz.split.* splitfile
 	echo "\033[1;32mAll split file has been moved in /splitfile/ folder\033[0m"
 	rm original_backup/termux-backup.tar.gz.gpg
